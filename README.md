@@ -1,8 +1,8 @@
 
 ## About Task
-- [Create GUI to upload documents like as pdf or docx on form submit call api to upload this document in a folder].
-- [Extract uploaded document data & save in DB.]
-- [Show uploaded documents list with columns:- S.no. , doc name, content.]
+- Create GUI to upload documents like as pdf or docx on form submit call api to upload this document in a folder.
+- Extract uploaded document data & save in DB.
+- Show uploaded documents list with columns:- S.no. , doc name, content.
 
 
 ## How to run the code
@@ -18,6 +18,6 @@
 ## Thanks You!
 
 ## Links
-- [GitHub https://github.com/hello-ravikumar]
-- [LinkedIn https://www.linkedin.com/in/ravi-kumar-0924a8188/]
+- GitHub https://github.com/hello-ravikumar
+- LinkedIn https://www.linkedin.com/in/ravi-kumar-0924a8188/
 
