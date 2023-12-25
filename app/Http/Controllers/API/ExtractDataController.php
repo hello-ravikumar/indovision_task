@@ -1,33 +1,50 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\API;
 
+use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\HandleFile;
 use Smalot\PdfParser\Parser;
 use Illuminate\Support\Facades\DB;
+use Validator;
 
-class HandleFileController extends Controller
+class ExtractDataController extends Controller
 {
+    
     public function index()
     {
-        // Get data from bd and show
-        $data = HandleFile::get();
-        return view('welcome',["data" => $data]);
+        try {
+            // Get data from bd and show
+            $data = HandleFile::orderBy('id', 'DESC')->get();
+            return response()->json($data);
+        } catch (\Throwable $th) {
+            //throw $th;
+            return response()->json([
+                'status' => false,
+                'message' =>   $th->getMessage(),
+            ], 422);
+        }
+
+        
     }
 
-
-    public function processFile(Request $request)
+    // upload and proccess file
+    public function uploadFile(Request $request)
     {
-        // Write code for validation
-        $request->validate([
+        $validator = Validator::make($request->all(), [
             'uploadFileName' => 'required|mimes:pdf,docx|max:1024',
         ]);
-        
+        if($validator->fails()){
+            return response()->json([
+                "error" => true,
+                "messages" => $validator->errors(),
+            ]);     
+        }
+
         try {
             DB::beginTransaction();
             
-
             // check file and upload on file directory
             if ($request->hasfile('uploadFileName')) {
                 $file = $request->uploadFileName;
@@ -63,11 +80,18 @@ class HandleFileController extends Controller
             // store data in to db            
             HandleFile::create($input);
             DB::commit();
-            return redirect()->back()->with('success', 'File processed and data saved.');
+            return response()->json([
+                'status' => true,
+                'message' =>  'File processed and data saved.',
+            ], 200);
         } catch (\Throwable $th) {
             DB::rollBack();
-            return redirect()->back()->with('error',  $th->getMessage());
-        }
+            return response()->json([
+                'status' => false,
+                'message' =>   $th->getMessage(),
+            ], 422);
+        }        
+        
     }
 
     //function for extract pdf
@@ -78,7 +102,6 @@ class HandleFileController extends Controller
         $pdf = $pdfParser->parseFile($file->path());
         return $pdf->getText();
     }
-
 
     // function for extract docx
     private function readDocxFile($file)
@@ -108,34 +131,4 @@ class HandleFileController extends Controller
         }
         return $text;
     }
-
-
-    // edit file content 
-    public function edit($id)
-    {
-        $edit = HandleFile::find(decrypt($id));
-        $data = HandleFile::get();
-        return view('welcome',["data" =>$data,"edit" => $edit]);
-    }
-
-    // update content 
-    public function update(Request $request, $id)
-    {
-        $request->validate([
-            'content' => 'required',
-        ]);
-
-        try {
-            DB::beginTransaction();            
-            // update data in to db            
-            HandleFile::where('id',decrypt($id))->update(['content' => $request->content]);
-            DB::commit();
-            return redirect()->route('welcome')->with('success', 'Content updated successfully.');
-        } catch (\Throwable $th) {
-            DB::rollBack();
-            return redirect()->back()->with('error',  $th->getMessage());
-        }
-        
-    }
-
 }

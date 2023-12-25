@@ -3,6 +3,7 @@
 - Create GUI to upload documents like as pdf or docx on form submit call api to upload this document in a folder.
 - Extract uploaded document data & save in DB.
 - Show uploaded documents list with columns:- S.no. , doc name, content.
+- Api Created
 
 
 ## How to run the code
